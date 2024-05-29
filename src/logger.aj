@@ -8,11 +8,13 @@ import org.aspectj.lang.JoinPoint;
 
 import com.bettinghouse.Person;
 import com.bettinghouse.User;
+import java.io.File;
+import java.util.Calendar;
 
 public aspect logger {
 	File file = new File("Register.txt");
 	File file2 = new File("Log.txt");
-    Calendar cal;
+    Calendar calendario;
     
     private String getNombreMetodo(JoinPoint joinPoint) {
         return joinPoint.getSignature().getName();
@@ -22,10 +24,10 @@ public aspect logger {
     pointcut registrarUsuario(User user, Person person): call(* successfulSignUp(User, Person)) && args(user, person);
     
     after(User user, Person person) : registrarUsuario(user, person) {
-    	this.cal = Calendar.getInstance();
+    	this.calendario = Calendar.getInstance();
     	try(PrintWriter pw=new PrintWriter(new FileOutputStream(file,true))){
-    		pw.println("Usuario registrado: ["+user+"]    Fecha: ["+cal.getTime() + "]");
-    		System.out.println("****Usuario ["+user.getNickname()+"] Registrado**** "+cal.getTime());
+    		pw.println("Usuario registrado: ["+user+"]    Fecha: ["+calendario.getTime() + "]");
+    		System.out.println("****Usuario ["+user.getNickname()+"] Registrado**** "+calendario.getTime());
     	}catch(FileNotFoundException e){System.out.println(e.getMessage());}    
     }
     
@@ -33,7 +35,7 @@ public aspect logger {
     pointcut manejoSesion(User user) : call(* effectiveLog*(User)) && args(user);
     
     after(User user) : manejoSesion(user) {
-    	this.cal = Calendar.getInstance();
+    	this.calendario = Calendar.getInstance();
     	try(PrintWriter pw=new PrintWriter(new FileOutputStream(file2,true))){
     		String nombreMetodo = getNombreMetodo(thisJoinPoint);
     		if (nombreMetodo.equals("effectiveLogOut")) {
@@ -43,8 +45,8 @@ public aspect logger {
     			pw.print("Sesión iniciada por usuario: [");
     			System.out.print("****Sesión Iniciada por ");
     		}
-    		pw.println(user.getNickname()+"]     Fecha: ["+cal.getTime() + "]");
-    		System.out.println(user.getNickname()+"**** "+cal.getTime());
+    		pw.println(user.getNickname()+"]     Fecha: ["+calendario.getTime() + "]");
+    		System.out.println(user.getNickname()+"**** "+calendario.getTime());
     	}catch(FileNotFoundException e) {System.out.println(e.getMessage());}
     }
    
